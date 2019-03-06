@@ -1,1 +1,4 @@
-.idea
+.idea/
+out/
+log/
+.gradle/4.10/fileHashes/

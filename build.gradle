@@ -17,6 +17,8 @@ test {
 
 dependencies {
 
+    implementation 'org.slf4j:slf4j-api:latest.release'
+    implementation 'org.slf4j:slf4j-simple:latest.release'
     implementation 'com.google.guava:guava:latest.release'
     annotationProcessor 'org.projectlombok:lombok:latest.release'
     compileOnly 'org.projectlombok:lombok:latest.release'
