@@ -1,4 +1,8 @@
-package com.x.sudoku;
+package com.x.sudoku.resolver;
+
+import com.x.sudoku.Resolver;
+import com.x.sudoku.SudokuGame;
+import com.x.sudoku.SudokuNode;
 
 public class ImpossibleSetResolver implements Resolver {
 
@@ -12,6 +16,7 @@ public class ImpossibleSetResolver implements Resolver {
             node.removeImpossible(currentCheck.getNumber());
             if (node.isNotInit() && node.isNotFilled() && node.getPossibleNumbers().size() == 1) {
                 node.fillNumber(node.getPossibleNumbers().stream().findFirst().get());
+                context.setSolved(context.getSolved() + 1);
             }
         });
     }

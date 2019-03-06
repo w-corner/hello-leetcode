@@ -2,6 +2,9 @@ package com.x.sudoku;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
+import com.x.sudoku.resolver.BlockImpossibleResolver;
+import com.x.sudoku.resolver.ImpossibleSetResolver;
+import com.x.sudoku.resolver.PossibleCheckResolver;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
@@ -37,13 +40,23 @@ public class SudokuGame {
 
         game.registerResolver(new PossibleCheckResolver());
         game.registerResolver(new ImpossibleSetResolver());
+        game.registerResolver(new BlockImpossibleResolver());
 
-        for (int i = 0; i < 10; i++) {
-            log.info("================ round {} ======================", i);
-            game.round();
-        }
-//        game.showCurrent();
+        game.start();
     }
+
+    private void start() {
+        for (int i = 0; i < 20; i++) {
+            log.info("================ round {} ======================", i);
+            if (i == 6) {
+                getNode(5, 0).fillNumber(5);
+            }
+            round();
+        }
+    }
+
+    private int inited = 0;
+    private int solved = 0;
 
     private List<SudokuNode> allNodes = new ArrayList<>(81);
     private Map<Integer, Set<SudokuNode>> rows;
@@ -70,6 +83,7 @@ public class SudokuGame {
                     node.setNumber(number);
                     node.setNotInit(false);
                     node.setPossibleNumbers(Collections.singleton(number));
+                    inited ++;
                 });
     }
 
@@ -83,6 +97,10 @@ public class SudokuGame {
 
     public void round() {
         allNodes.forEach(node -> resolvers.forEach(resolver -> resolver.resolve(this, node)));
+        log.info("------ inited: {}, solved: {} --------------", inited, solved);
+        if (inited + solved == allNodes.size()) {
+            log.info("================ complete ======================");
+        }
     }
 
     public Stream<SudokuNode> getAffectNodeStream(SudokuNode node) {
