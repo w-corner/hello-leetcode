@@ -2,7 +2,7 @@ package com.x.sudoku.resolver;
 
 import com.x.sudoku.Resolver;
 import com.x.sudoku.SudokuGame;
-import com.x.sudoku.SudokuNode;
+import com.x.sudoku.data.SudokuNode;
 
 public class ImpossibleSetResolver implements Resolver {
 

@@ -1,4 +1,4 @@
-package com.x.sudoku;
+package com.x.sudoku.data;
 
 import com.google.common.collect.Sets;
 import lombok.Builder;

@@ -2,7 +2,7 @@ package com.x.sudoku.resolver;
 
 import com.google.common.collect.ImmutableSet;
 import com.x.sudoku.SudokuGame;
-import com.x.sudoku.SudokuNode;
+import com.x.sudoku.data.SudokuNode;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

@@ -2,6 +2,7 @@ package com.x.sudoku;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
+import com.x.sudoku.data.SudokuNode;
 import com.x.sudoku.resolver.BlockImpossibleResolver;
 import com.x.sudoku.resolver.ImpossibleSetResolver;
 import com.x.sudoku.resolver.PossibleCheckResolver;
@@ -48,9 +49,6 @@ public class SudokuGame {
     private void start() {
         for (int i = 0; i < 20; i++) {
             log.info("================ round {} ======================", i);
-            if (i == 6) {
-                getNode(5, 0).fillNumber(5);
-            }
             round();
         }
     }

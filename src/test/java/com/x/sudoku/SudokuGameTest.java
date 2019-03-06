@@ -1,5 +1,6 @@
 package com.x.sudoku;
 
+import com.x.sudoku.data.SudokuNode;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

@@ -3,7 +3,7 @@ package com.x.sudoku.resolver;
 import com.google.common.collect.Sets;
 import com.x.sudoku.Resolver;
 import com.x.sudoku.SudokuGame;
-import com.x.sudoku.SudokuNode;
+import com.x.sudoku.data.SudokuNode;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Objects;
