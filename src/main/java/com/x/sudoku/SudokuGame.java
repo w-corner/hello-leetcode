@@ -1,7 +1,8 @@
 package com.x.sudoku;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
+import com.google.common.collect.Lists;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
@@ -13,6 +14,7 @@ import static java.util.Collections.unmodifiableMap;
 import static java.util.stream.Collectors.toSet;
 
 @Slf4j
+@Data
 public class SudokuGame {
 
     public static void main(String[] args) {
@@ -33,10 +35,14 @@ public class SudokuGame {
         };
         game.initNumber(arr);
 
+        game.registerResolver(new PossibleCheckResolver());
+        game.registerResolver(new ImpossibleSetResolver());
+
         for (int i = 0; i < 10; i++) {
             log.info("================ round {} ======================", i);
             game.round();
         }
+//        game.showCurrent();
     }
 
     private List<SudokuNode> allNodes = new ArrayList<>(81);
@@ -44,10 +50,11 @@ public class SudokuGame {
     private Map<Integer, Set<SudokuNode>> cols;
     private Map<Integer, Set<SudokuNode>> blocks;
     public static final Set<Integer> ALL_ELEMENTS = ImmutableSet.of(1, 2, 3, 4, 5, 6, 7, 8, 9);
+    private List<Resolver> resolvers = Lists.newArrayList();
 
     private void init() {
 
-        IntStream.range(0, 9).forEach(x -> IntStream.range(0, 9).forEach(y -> allNodes.add(SudokuNode.builder().x(x).y(y).build())));
+        IntStream.range(0, 9).forEach(y -> IntStream.range(0, 9).forEach(x -> allNodes.add(SudokuNode.builder().x(x).y(y).build())));
 
         rows = unmodifiableMap(allNodes.stream().collect(Collectors.groupingBy(SudokuNode::getX, toSet())));
         cols = unmodifiableMap(allNodes.stream().collect(Collectors.groupingBy(SudokuNode::getY, toSet())));
@@ -66,57 +73,19 @@ public class SudokuGame {
                 });
     }
 
+    private void registerResolver(Resolver resolver) {
+        resolvers.add(resolver);
+    }
+
     private Integer arrValue(Integer[][] arr, SudokuNode node) {
         return arr[node.getY()][node.getX()];
     }
 
     public void round() {
-        allNodes.forEach(node -> {
-            if (node.isNotInit() && node.isNotFilled()) {
-                possibleCheck(node);
-            } else {
-                impossibleSet(node);
-            }
-        });
+        allNodes.forEach(node -> resolvers.forEach(resolver -> resolver.resolve(this, node)));
     }
 
-    private void impossibleSet(SudokuNode currentCheck) {
-        getAffectNodeStream(currentCheck).forEach(node -> {
-            node.removeImpossible(currentCheck.getNumber());
-            if (node.isNotInit() && node.isNotFilled() && node.getPossibleNumbers().size() == 1) {
-                node.fillNumber(node.getPossibleNumbers().stream().findFirst().get());
-            }
-        });
-    }
-
-    private void possibleCheck(SudokuNode node) {
-        Set<Integer> existed = getAffectNodeStream(node)
-                .map(SudokuNode::getNumber)
-                .filter(Objects::nonNull)
-                .collect(toSet());
-        Sets.SetView<Integer> possible = Sets.difference(node.getPossibleNumbers(), existed);
-        node.setPossibleNumbers(Sets.newHashSet(possible));
-
-        if (node.getPossibleNumbers().size() == 1) {
-            Integer exacted = node.getPossibleNumbers().stream().findFirst().get();
-            node.fillNumber(exacted);
-            return;
-        }
-
-        Sets.SetView<SudokuNode> otherNodesInSameBlock = Sets.difference(blocks.get(node.getBlockKey()), Collections.singleton(node));
-        Set<Integer> possibleOfOtherNode = otherNodesInSameBlock.stream()
-                .map(SudokuNode::getPossibleNumbers)
-                .flatMap(Collection::stream)
-                .collect(toSet());
-        Sets.SetView<Integer> othersImpossible = Sets.difference(ALL_ELEMENTS, possibleOfOtherNode);
-        Sets.SetView<Integer> selfPossible = Sets.intersection(node.getPossibleNumbers(), othersImpossible);
-        if (selfPossible.size() == 1) {
-            node.fillNumber(selfPossible.stream().findFirst().get());
-            return;
-        }
-    }
-
-    private Stream<SudokuNode> getAffectNodeStream(SudokuNode node) {
+    public Stream<SudokuNode> getAffectNodeStream(SudokuNode node) {
         return Stream.of(rows.get(node.getX()), cols.get(node.getY()), blocks.get(node.getBlockKey()))
                 .flatMap(Collection::stream)
                 .filter(n -> !n.equals(node))
@@ -128,5 +97,20 @@ public class SudokuGame {
                 .filter(n -> n.getX() == x && n.getY() == y)
                 .findFirst()
                 .orElse(null);
+    }
+
+    public void showCurrent() {
+        StringBuilder sb = new StringBuilder();
+        allNodes.forEach(node -> {
+            if (node.getX() % 9 == 0) {
+                sb.append("\n");
+            }
+            if (node.getNumber() == null) {
+                sb.append(String.format("%10s", node.getPossibleNumbers()));
+            } else {
+                sb.append(String.format("%10d", node.getNumber()));
+            }
+        });
+        log.info(sb.toString());
     }
 }
