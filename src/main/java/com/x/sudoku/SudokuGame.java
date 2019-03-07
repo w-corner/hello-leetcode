@@ -149,6 +149,7 @@ public class SudokuGame {
         }
         log.info("node {} 's chain {}", node, chains);
         chains.forEach(pairChain -> pairChain.destroyBy(node));
+        solved += chains.size();
     }
 
     public boolean existPairChain(SudokuNode node, Set<SudokuNode> toCreateChain) {

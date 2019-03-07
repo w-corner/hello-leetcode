@@ -15,14 +15,15 @@ public class PairChain {
     private final Set<Integer> possibleNumbers;
 
     public void destroyBy(SudokuNode node) {
+        final Set<Integer> before = this.possibleNumbers;
         nodes.remove(node);
-        possibleNumbers.remove(node.getNumber());
+        this.possibleNumbers.remove(node.getNumber());
         nodes.stream()
 //                .filter(node1 -> node1.isNotInit() && node1.isNotFilled())
                 .findFirst()
                 .ifPresent(node1 -> {
-                    Integer number = possibleNumbers.stream().findFirst().get();
-                    log.info("PairChain {} destory by {}, fill {} with: {}", possibleNumbers, node, node1, number);
+                    Integer number = this.possibleNumbers.stream().findFirst().get();
+                    log.info("PairChain {} destory by {}, fill {} with: {}", before, node, node1, number);
                     node1.fillNumber(number);
                 });
     }
