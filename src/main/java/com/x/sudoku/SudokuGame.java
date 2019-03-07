@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.x.sudoku.data.SudokuNode;
 import com.x.sudoku.resolver.BlockImpossibleResolver;
-import com.x.sudoku.resolver.ImpossibleSetResolver;
 import com.x.sudoku.resolver.PossibleCheckResolver;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -40,7 +39,6 @@ public class SudokuGame {
         game.initNumber(arr);
 
         game.registerResolver(new PossibleCheckResolver());
-        game.registerResolver(new ImpossibleSetResolver());
         game.registerResolver(new BlockImpossibleResolver());
 
         game.start();
