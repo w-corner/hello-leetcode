@@ -38,8 +38,8 @@ public class SudokuGame {
         };
         game.initNumber(arr);
 
-        game.registerResolver(new PossibleCheckResolver());
-        game.registerResolver(new BlockImpossibleResolver());
+        game.registerResolver(new PossibleCheckResolver(game));
+        game.registerResolver(new BlockImpossibleResolver(game));
 
         game.start();
     }
@@ -92,7 +92,7 @@ public class SudokuGame {
     }
 
     public void round() {
-        allNodes.forEach(node -> resolvers.forEach(resolver -> resolver.resolve(this, node)));
+        allNodes.forEach(node -> resolvers.forEach(resolver -> resolver.resolve(node)));
         log.info("------ inited: {}, solved: {} --------------", inited, solved);
         if (inited + solved == allNodes.size()) {
             log.info("================ complete ======================");

@@ -4,6 +4,7 @@ import com.google.common.collect.Sets;
 import com.x.sudoku.Resolver;
 import com.x.sudoku.SudokuGame;
 import com.x.sudoku.data.SudokuNode;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collection;
@@ -14,10 +15,13 @@ import static com.x.sudoku.SudokuGame.ALL_ELEMENTS;
 import static java.util.stream.Collectors.toSet;
 
 @Slf4j
+@AllArgsConstructor
 public class BlockImpossibleResolver implements Resolver {
 
+    private SudokuGame context;
+
     @Override
-    public void resolve(SudokuGame context, SudokuNode node) {
+    public void resolve(SudokuNode node) {
         Sets.SetView<SudokuNode> otherNodesInSameBlock = Sets.difference(context.getBlocks().get(node.getBlockKey()), Collections.singleton(node));
         Set<Integer> possibleOfOtherNode = otherNodesInSameBlock.stream()
                 .map(SudokuNode::getPossibleNumbers)

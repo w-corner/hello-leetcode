@@ -4,6 +4,7 @@ import com.google.common.collect.Sets;
 import com.x.sudoku.Resolver;
 import com.x.sudoku.SudokuGame;
 import com.x.sudoku.data.SudokuNode;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Objects;
@@ -12,10 +13,13 @@ import java.util.Set;
 import static java.util.stream.Collectors.toSet;
 
 @Slf4j
+@AllArgsConstructor
 public class PossibleCheckResolver implements Resolver {
 
+    private SudokuGame context;
+
     @Override
-    public void resolve(SudokuGame context, SudokuNode node) {
+    public void resolve(SudokuNode node) {
         if (!node.isNotInit() || !node.isNotFilled()) {
             return;
         }
