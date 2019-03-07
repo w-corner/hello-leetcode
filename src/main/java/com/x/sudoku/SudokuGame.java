@@ -2,8 +2,12 @@ package com.x.sudoku;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.x.sudoku.data.PairChain;
 import com.x.sudoku.data.SudokuNode;
 import com.x.sudoku.resolver.BlockImpossibleResolver;
+import com.x.sudoku.resolver.PairChainResolver;
 import com.x.sudoku.resolver.PossibleCheckResolver;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -40,6 +44,7 @@ public class SudokuGame {
 
         game.registerResolver(new PossibleCheckResolver(game));
         game.registerResolver(new BlockImpossibleResolver(game));
+        game.registerResolver(new PairChainResolver(game));
 
         game.start();
     }
@@ -54,11 +59,12 @@ public class SudokuGame {
     private int inited = 0;
     private int solved = 0;
 
+    public static final Set<Integer> ALL_ELEMENTS = ImmutableSet.of(1, 2, 3, 4, 5, 6, 7, 8, 9);
     private List<SudokuNode> allNodes = new ArrayList<>(81);
     private Map<Integer, Set<SudokuNode>> rows;
     private Map<Integer, Set<SudokuNode>> cols;
     private Map<Integer, Set<SudokuNode>> blocks;
-    public static final Set<Integer> ALL_ELEMENTS = ImmutableSet.of(1, 2, 3, 4, 5, 6, 7, 8, 9);
+    private Map<SudokuNode, Set<PairChain>> pairChains = Maps.newHashMap();
     private List<Resolver> resolvers = Lists.newArrayList();
 
     private void init() {
@@ -126,5 +132,32 @@ public class SudokuGame {
             }
         });
         log.info(sb.toString());
+    }
+
+    public void registerPariChain(PairChain pair) {
+        pair.getNodes().forEach(node -> {
+            Set<PairChain> chains = pairChains.getOrDefault(node, Sets.newHashSet());
+            chains.add(pair);
+            pairChains.put(node, chains);
+        });
+    }
+
+    private void destroyPairChain(SudokuNode node) {
+        Set<PairChain> chains = pairChains.remove(node);
+        if (chains == null) {
+            return;
+        }
+        log.info("node {} 's chain {}", node, chains);
+        chains.forEach(pairChain -> pairChain.destroyBy(node));
+    }
+
+    public boolean existPairChain(SudokuNode node, Set<SudokuNode> toCreateChain) {
+        return pairChains.getOrDefault(node, Sets.newHashSet()).stream()
+                .anyMatch(pairChain -> pairChain.getNodes().equals(toCreateChain));
+    }
+
+    public void solved(SudokuNode node) {
+        solved ++;
+        destroyPairChain(node);
     }
 }

@@ -32,10 +32,14 @@ public class SudokuNode {
     }
 
     public void fillNumber(int number) {
-        this.number = number;
-        this.possibleNumbers = Collections.singleton(number);
-        this.notFilled = false;
-        log.info("({},{})={}", x + 1, y + 1, number);
+        if (isNotInit() && isNotFilled()) {
+            this.number = number;
+            this.possibleNumbers = Collections.singleton(number);
+            this.notFilled = false;
+            log.info("({},{})={}", x, y, number);
+        } else {
+            throw new IllegalStateException("error fill: " + this + " with: " + number);
+        }
     }
 
     public void removeImpossible(int number) {

@@ -10,7 +10,7 @@ public class BlockImpossibleResolverTest {
 
     private SudokuGame game = new SudokuGame();
 
-    private BlockImpossibleResolver resolver = new BlockImpossibleResolver();
+    private BlockImpossibleResolver resolver = new BlockImpossibleResolver(game);
 
     @Test
     void test_resolver_BlockImpossibleResolver() {
@@ -32,7 +32,7 @@ public class BlockImpossibleResolverTest {
         game.getBlocks().get(testNode.getBlockKey()).stream()
                 .filter(node -> !node.equals(testNode))
                 .forEach(node -> node.setPossibleNumbers(ImmutableSet.of(1, 2, 3, 4, 5, 6, 8, 9)));
-        resolver.resolve(game, testNode);
+        resolver.resolve(testNode);
 
         Assertions.assertFalse(testNode.isNotFilled());
     }

@@ -28,13 +28,17 @@ public class PossibleCheckResolver implements Resolver {
                 .map(SudokuNode::getNumber)
                 .filter(Objects::nonNull)
                 .collect(toSet());
+        Set<Integer> before = node.getPossibleNumbers();
         Sets.SetView<Integer> possible = Sets.difference(node.getPossibleNumbers(), existed);
         node.setPossibleNumbers(Sets.newHashSet(possible));
 
+        if (!before.equals(possible)) {
+            log.info("({},{}) possible before: {}, exist: {}, after: {}", node.getX(), node.getY(), before, existed, possible);
+        }
         if (node.getPossibleNumbers().size() == 1) {
             Integer exacted = node.getPossibleNumbers().stream().findFirst().get();
             node.fillNumber(exacted);
-            context.setSolved(context.getSolved() + 1);
+            context.solved(node);
         }
     }
 }

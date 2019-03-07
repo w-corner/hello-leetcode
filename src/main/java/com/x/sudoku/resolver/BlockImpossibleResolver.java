@@ -22,16 +22,24 @@ public class BlockImpossibleResolver implements Resolver {
 
     @Override
     public void resolve(SudokuNode node) {
+        if (!node.isNotInit() || !node.isNotFilled()) {
+            return;
+        }
+
         Sets.SetView<SudokuNode> otherNodesInSameBlock = Sets.difference(context.getBlocks().get(node.getBlockKey()), Collections.singleton(node));
         Set<Integer> possibleOfOtherNode = otherNodesInSameBlock.stream()
                 .map(SudokuNode::getPossibleNumbers)
                 .flatMap(Collection::stream)
                 .collect(toSet());
         Sets.SetView<Integer> othersImpossible = Sets.difference(ALL_ELEMENTS, possibleOfOtherNode);
+        if (othersImpossible.size() == 0) {
+            return;
+        }
         Sets.SetView<Integer> selfPossible = Sets.intersection(node.getPossibleNumbers(), othersImpossible);
-        if (node.isNotInit() && node.isNotFilled() && selfPossible.size() == 1) {
+        log.info("possible before: {}, othersImpossible: {}", node.getPossibleNumbers(), othersImpossible);
+        if (selfPossible.size() == 1) {
             node.fillNumber(selfPossible.stream().findFirst().get());
-            context.setSolved(context.getSolved() + 1);
+            context.solved(node);
         }
     }
 }
