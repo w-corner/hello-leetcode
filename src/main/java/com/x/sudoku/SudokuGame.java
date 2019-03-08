@@ -28,6 +28,7 @@ public class SudokuGame {
         SudokuGame game = new SudokuGame();
 
         Integer[][] arr = {
+//                {null, null, null, null, null, null, null, null, null},
                 {null, 7, null, 2, 3, null, 6, null, 4},
                 {null, null, null, null, null, 9, null, null, null},
                 {3, 6, 4, null, null, 7, null, null, null},
@@ -44,7 +45,7 @@ public class SudokuGame {
 
         game.registerResolver(new PossibleCheckResolver(game));
         game.registerResolver(new BlockImpossibleResolver(game));
-        game.registerResolver(new PairChainResolver(game));
+//        game.registerResolver(new PairChainResolver(game));
         game.registerResolver(new LineImpossibleResolver(game));
 
         game.start();
@@ -60,6 +61,7 @@ public class SudokuGame {
                 break;
             }
         }
+        printBoard();
     }
 
     private int inited = 0;
@@ -150,5 +152,16 @@ public class SudokuGame {
     public void solved(SudokuNode node) {
         solved++;
         destroyPairChain(node);
+    }
+
+    public void printBoard() {
+        StringBuilder sb = new StringBuilder();
+        allNodes.forEach(node -> {
+            if (node.getX() % 9 == 0) {
+                sb.append("\n");
+            }
+            sb.append(String.format("%4d", node.getNumber()));
+        });
+        log.info(sb.toString());
     }
 }
