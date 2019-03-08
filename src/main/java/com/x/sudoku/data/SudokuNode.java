@@ -43,13 +43,20 @@ public class SudokuNode {
     }
 
     public void removeImpossible(int number) {
-        log.debug("({},{})~=({}) remove {}", x, y, this.possibleNumbers, number);
-        this.getPossibleNumbers().remove(number);
+        removeImpossible(Collections.singleton(number));
     }
 
     public void removeImpossible(Set<Integer> numbers) {
+        if (Collections.disjoint(possibleNumbers, numbers)) {
+            return;
+        }
+
         Set<Integer> before = Sets.newHashSet(this.possibleNumbers);
         this.possibleNumbers.removeAll(numbers);
+        if (this.getPossibleNumbers().size() == 0) {
+            String msg = String.format("(%d, %d) error remove, before: %s, to be removed: %s", x, y, before, numbers);
+            throw new IllegalStateException(msg);
+        }
         log.info("({},{}) possible before: {}, impossible: {}, after: {}", x, y, before, numbers, this.possibleNumbers);
     }
 

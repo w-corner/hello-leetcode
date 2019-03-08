@@ -42,7 +42,7 @@ public class PairChainResolver implements Resolver {
             return;
         }
 
-        PairChain chain = PairChain.of(notResolved, node.getPossibleNumbers());
+        PairChain chain = PairChain.of(notResolved, Sets.newHashSet(node.getPossibleNumbers()));
         log.info("{} in block create PairChain {}", node, chain);
         context.registerPariChain(chain);
 
@@ -67,7 +67,7 @@ public class PairChainResolver implements Resolver {
         if (notResolved.size() != 2 || context.existPairChain(node, notResolved)) {
             return;
         }
-        PairChain chain = PairChain.of(notResolved, node.getPossibleNumbers());
+        PairChain chain = PairChain.of(notResolved, Sets.newHashSet(node.getPossibleNumbers()));
         log.info("{} in row create PairChain {}", node, chain);
         context.registerPariChain(chain);
 
@@ -80,7 +80,7 @@ public class PairChainResolver implements Resolver {
         if (notResolved.size() != 2 || context.existPairChain(node, notResolved)) {
             return;
         }
-        PairChain chain = PairChain.of(notResolved, node.getPossibleNumbers());
+        PairChain chain = PairChain.of(notResolved, Sets.newHashSet(node.getPossibleNumbers()));
         log.info("{} in column create PairChain {}", node, chain);
         context.registerPariChain(chain);
     }

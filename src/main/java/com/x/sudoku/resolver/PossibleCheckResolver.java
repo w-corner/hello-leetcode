@@ -1,6 +1,5 @@
 package com.x.sudoku.resolver;
 
-import com.google.common.collect.Sets;
 import com.x.sudoku.Resolver;
 import com.x.sudoku.SudokuGame;
 import com.x.sudoku.data.SudokuNode;
@@ -8,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -30,13 +30,10 @@ public class PossibleCheckResolver implements Resolver {
                 .map(SudokuNode::getNumber)
                 .filter(Objects::nonNull)
                 .collect(toSet());
-        Set<Integer> before = Sets.newHashSet(node.getPossibleNumbers());
-        Sets.SetView<Integer> possible = Sets.difference(node.getPossibleNumbers(), existed);
-        node.setPossibleNumbers(Sets.newHashSet(possible));
-
-        if (!before.equals(possible)) {
-            log.info("({},{}) possible before: {}, exist: {}, after: {}", node.getX(), node.getY(), before, existed, possible);
+        if (Collections.disjoint(node.getPossibleNumbers(), existed)) {
+            return;
         }
+        node.removeImpossible(existed);
         if (node.getPossibleNumbers().size() == 1) {
             Integer exacted = node.getPossibleNumbers().stream().findFirst().get();
             node.fillNumber(exacted);

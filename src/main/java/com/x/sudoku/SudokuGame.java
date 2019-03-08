@@ -7,6 +7,7 @@ import com.google.common.collect.Sets;
 import com.x.sudoku.data.PairChain;
 import com.x.sudoku.data.SudokuNode;
 import com.x.sudoku.resolver.BlockImpossibleResolver;
+import com.x.sudoku.resolver.LineImpossibleResolver;
 import com.x.sudoku.resolver.PairChainResolver;
 import com.x.sudoku.resolver.PossibleCheckResolver;
 import lombok.Data;
@@ -15,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import static java.util.Collections.unmodifiableMap;
 import static java.util.stream.Collectors.toSet;
@@ -45,14 +45,20 @@ public class SudokuGame {
         game.registerResolver(new PossibleCheckResolver(game));
         game.registerResolver(new BlockImpossibleResolver(game));
         game.registerResolver(new PairChainResolver(game));
+        game.registerResolver(new LineImpossibleResolver(game));
 
         game.start();
     }
 
     private void start() {
-        for (int i = 0; i < 20; i++) {
-            log.info("================ round {} ======================", i);
-            round();
+        for (int round = 0; round < 20; round++) {
+            log.info("================ round {} ======================", round);
+            allNodes.forEach(node -> resolvers.forEach(resolver -> resolver.resolve(node)));
+            log.info("------ inited: {}, solved: {} --------------", inited, solved);
+            if (inited + solved == allNodes.size()) {
+                log.info("================ complete@{} ======================", round);
+                break;
+            }
         }
     }
 
@@ -85,7 +91,7 @@ public class SudokuGame {
                     node.setNumber(number);
                     node.setNotInit(false);
                     node.setPossibleNumbers(Collections.singleton(number));
-                    inited ++;
+                    inited++;
                 });
     }
 
@@ -97,34 +103,11 @@ public class SudokuGame {
         return arr[node.getY()][node.getX()];
     }
 
-    public void round() {
-        allNodes.forEach(node -> resolvers.forEach(resolver -> resolver.resolve(node)));
-        log.info("------ inited: {}, solved: {} --------------", inited, solved);
-        if (inited + solved == allNodes.size()) {
-            log.info("================ complete ======================");
-        }
-    }
-
     public SudokuNode getNode(int x, int y) {
         return allNodes.stream()
                 .filter(n -> n.getX() == x && n.getY() == y)
                 .findFirst()
                 .orElse(null);
-    }
-
-    public void showCurrent() {
-        StringBuilder sb = new StringBuilder();
-        allNodes.forEach(node -> {
-            if (node.getX() % 9 == 0) {
-                sb.append("\n");
-            }
-            if (node.getNumber() == null) {
-                sb.append(String.format("%10s", node.getPossibleNumbers()));
-            } else {
-                sb.append(String.format("%10d", node.getNumber()));
-            }
-        });
-        log.info(sb.toString());
     }
 
     public void registerPariChain(PairChain pair) {
@@ -150,7 +133,7 @@ public class SudokuGame {
 
                 if (node1.isNotFilled()) {
                     node1.fillNumber(number);
-                    solved ++;
+                    solved++;
                 }
 
                 pairChains.getOrDefault(node1, Sets.newHashSet()).removeIf(pairChain1 -> pairChain1.equals(pairChain));
@@ -165,7 +148,7 @@ public class SudokuGame {
     }
 
     public void solved(SudokuNode node) {
-        solved ++;
+        solved++;
         destroyPairChain(node);
     }
 }
