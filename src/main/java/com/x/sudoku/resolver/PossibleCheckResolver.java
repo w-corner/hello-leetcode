@@ -7,8 +7,10 @@ import com.x.sudoku.data.SudokuNode;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toSet;
 
@@ -24,11 +26,11 @@ public class PossibleCheckResolver implements Resolver {
             return;
         }
 
-        Set<Integer> existed = context.getAffectNodeStream(node)
+        Set<Integer> existed = getAffectNodeStream(node)
                 .map(SudokuNode::getNumber)
                 .filter(Objects::nonNull)
                 .collect(toSet());
-        Set<Integer> before = node.getPossibleNumbers();
+        Set<Integer> before = Sets.newHashSet(node.getPossibleNumbers());
         Sets.SetView<Integer> possible = Sets.difference(node.getPossibleNumbers(), existed);
         node.setPossibleNumbers(Sets.newHashSet(possible));
 
@@ -40,5 +42,12 @@ public class PossibleCheckResolver implements Resolver {
             node.fillNumber(exacted);
             context.solved(node);
         }
+    }
+
+    private Stream<SudokuNode> getAffectNodeStream(SudokuNode node) {
+        return Stream.of(context.getRows().get(node.getY()), context.getCols().get(node.getX()), context.getBlocks().get(node.getBlockKey()))
+                .flatMap(Collection::stream)
+                .filter(n -> !n.equals(node))
+                .distinct();
     }
 }

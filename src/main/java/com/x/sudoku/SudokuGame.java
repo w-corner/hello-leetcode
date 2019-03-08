@@ -71,8 +71,8 @@ public class SudokuGame {
 
         IntStream.range(0, 9).forEach(y -> IntStream.range(0, 9).forEach(x -> allNodes.add(SudokuNode.builder().x(x).y(y).build())));
 
-        rows = unmodifiableMap(allNodes.stream().collect(Collectors.groupingBy(SudokuNode::getX, toSet())));
-        cols = unmodifiableMap(allNodes.stream().collect(Collectors.groupingBy(SudokuNode::getY, toSet())));
+        rows = unmodifiableMap(allNodes.stream().collect(Collectors.groupingBy(SudokuNode::getY, toSet())));
+        cols = unmodifiableMap(allNodes.stream().collect(Collectors.groupingBy(SudokuNode::getX, toSet())));
         blocks = unmodifiableMap(allNodes.stream().collect(Collectors.groupingBy(SudokuNode::getBlockKey, toSet())));
     }
 
@@ -103,13 +103,6 @@ public class SudokuGame {
         if (inited + solved == allNodes.size()) {
             log.info("================ complete ======================");
         }
-    }
-
-    public Stream<SudokuNode> getAffectNodeStream(SudokuNode node) {
-        return Stream.of(rows.get(node.getX()), cols.get(node.getY()), blocks.get(node.getBlockKey()))
-                .flatMap(Collection::stream)
-                .filter(n -> !n.equals(node))
-                .distinct();
     }
 
     public SudokuNode getNode(int x, int y) {
@@ -148,8 +141,22 @@ public class SudokuGame {
             return;
         }
         log.info("node {} 's chain {}", node, chains);
-        chains.forEach(pairChain -> pairChain.destroyBy(node));
-        solved += chains.size();
+        chains.forEach(pairChain -> {
+            HashSet<Integer> before = Sets.newHashSet(pairChain.getPossibleNumbers());
+            Optional<SudokuNode> theOtherNode = pairChain.destroyBy(node);
+            theOtherNode.ifPresent(node1 -> {
+                Integer number = pairChain.getPossibleNumbers().stream().findFirst().get();
+                log.info("PairChain {} destory by {}, fill {} with: {}", before, node, node1, number);
+
+                if (node1.isNotFilled()) {
+                    node1.fillNumber(number);
+                    solved ++;
+                }
+
+                pairChains.getOrDefault(node1, Sets.newHashSet()).remove(pairChain);
+            });
+
+        });
     }
 
     public boolean existPairChain(SudokuNode node, Set<SudokuNode> toCreateChain) {

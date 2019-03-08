@@ -46,4 +46,15 @@ public class SudokuNode {
         log.debug("({},{})~=({}) remove {}", x, y, this.possibleNumbers, number);
         this.getPossibleNumbers().remove(number);
     }
+
+    public void removeImpossible(Set<Integer> numbers) {
+        Set<Integer> before = Sets.newHashSet(this.possibleNumbers);
+        this.possibleNumbers.removeAll(numbers);
+        log.info("({},{}) possible before: {}, impossible: {}, after: {}", x, y, before, numbers, this.possibleNumbers);
+    }
+
+    @Override
+    public String toString() {
+        return String.format("SudokuNode(%d,%d)=%s", x, y, number == null ? possibleNumbers : number);
+    }
 }
