@@ -153,7 +153,7 @@ public class SudokuGame {
                     solved ++;
                 }
 
-                pairChains.getOrDefault(node1, Sets.newHashSet()).remove(pairChain);
+                pairChains.getOrDefault(node1, Sets.newHashSet()).removeIf(pairChain1 -> pairChain1.equals(pairChain));
             });
 
         });
