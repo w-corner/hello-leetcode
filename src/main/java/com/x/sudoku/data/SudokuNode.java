@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 import static com.x.sudoku.SudokuGame.ALL_ELEMENTS;
@@ -18,28 +19,17 @@ import static com.x.sudoku.SudokuGame.ALL_ELEMENTS;
 public class SudokuNode {
     private int x;
     private int y;
-    private Integer number;
+    private int number;
 
     @Builder.Default
     private boolean notInit = true;
     @Builder.Default
     private boolean notFilled = true;
     @Builder.Default
-    private Set<Integer> possibleNumbers = Sets.newHashSet(ALL_ELEMENTS);
+    private Set<Integer> possibleNumbers = new HashSet<>(ALL_ELEMENTS);
 
     public int getBlockKey() {
         return y / 3 * 10 + x / 3;
-    }
-
-    public void fillNumber(int number) {
-        if (isNotInit() && isNotFilled()) {
-            this.number = number;
-            this.possibleNumbers = Collections.singleton(number);
-            this.notFilled = false;
-            log.info("({},{})={}", x, y, number);
-        } else {
-            throw new IllegalStateException("error fill: " + this + " with: " + number);
-        }
     }
 
     public void removeImpossible(int number) {
@@ -51,17 +41,18 @@ public class SudokuNode {
             return;
         }
 
-        Set<Integer> before = Sets.newHashSet(this.possibleNumbers);
-        this.possibleNumbers.removeAll(numbers);
-        if (this.getPossibleNumbers().size() == 0) {
+        log.debug("{} remove {}", this, numbers);
+        Set<Integer> before = Sets.newHashSet(possibleNumbers);
+        possibleNumbers.removeAll(numbers);
+        if (getPossibleNumbers().size() == 0) {
             String msg = String.format("(%d, %d) error remove, before: %s, to be removed: %s", x, y, before, numbers);
             throw new IllegalStateException(msg);
         }
-        log.info("({},{}) possible before: {}, impossible: {}, after: {}", x, y, before, numbers, this.possibleNumbers);
+        log.info("({},{}) possible before: {}, impossible: {}, after: {}", x, y, before, numbers, possibleNumbers);
     }
 
     @Override
     public String toString() {
-        return String.format("SudokuNode(%d,%d)=%s", x, y, number == null ? possibleNumbers : number);
+        return String.format("SudokuNode(%d,%d)=%s", x, y, number == 0 ? possibleNumbers : number);
     }
 }

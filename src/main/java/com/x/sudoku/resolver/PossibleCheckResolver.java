@@ -26,9 +26,8 @@ public class PossibleCheckResolver implements Resolver {
             return;
         }
 
-        Set<Integer> existed = getAffectNodeStream(node)
+        Set<Integer> existed = context.getAffectNodeStream(node)
                 .map(SudokuNode::getNumber)
-                .filter(Objects::nonNull)
                 .collect(toSet());
         if (Collections.disjoint(node.getPossibleNumbers(), existed)) {
             return;
@@ -36,15 +35,9 @@ public class PossibleCheckResolver implements Resolver {
         node.removeImpossible(existed);
         if (node.getPossibleNumbers().size() == 1) {
             Integer exacted = node.getPossibleNumbers().stream().findFirst().get();
-            node.fillNumber(exacted);
-            context.solved(node);
+            context.fillNumber(node, exacted);
         }
     }
 
-    private Stream<SudokuNode> getAffectNodeStream(SudokuNode node) {
-        return Stream.of(context.getRows().get(node.getY()), context.getCols().get(node.getX()), context.getBlocks().get(node.getBlockKey()))
-                .flatMap(Collection::stream)
-                .filter(n -> !n.equals(node))
-                .distinct();
-    }
+
 }

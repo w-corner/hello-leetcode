@@ -38,8 +38,7 @@ public class BlockImpossibleResolver implements Resolver {
         Sets.SetView<Integer> selfPossible = Sets.intersection(node.getPossibleNumbers(), othersImpossible);
         log.info("({},{}) possible before: {}, othersImpossible: {}", node.getX(), node.getY(), node.getPossibleNumbers(), othersImpossible);
         if (selfPossible.size() == 1) {
-            node.fillNumber(selfPossible.stream().findFirst().get());
-            context.solved(node);
+            context.fillNumber(node, selfPossible.stream().findFirst().get());
         }
     }
 }

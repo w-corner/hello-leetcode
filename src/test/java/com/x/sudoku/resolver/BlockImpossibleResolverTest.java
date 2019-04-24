@@ -14,18 +14,18 @@ public class BlockImpossibleResolverTest {
 
     @Test
     void test_resolver_BlockImpossibleResolver() {
-        Integer[][] arr = new Integer[][]{
-                {null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null},
-                {null, 7, null, null, null, null, null, null, null},
+        int[][] arr = new int[][]{
+                {0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 7, 0, 0, 0, 0, 0, 0, 0},
 
-                {null, null, 7, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null},
+                {0, 0, 7, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0},
 
-                {null, null, null, 7, null, null, null, null, null},
-                {null, null, null, null, null, null, 7, null, null},
-                {null, null, null, null, null, null, null, null, null}
+                {0, 0, 0, 7, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 7, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0}
         };
         game.initNumber(arr);
         SudokuNode testNode = game.getNode(0, 8);

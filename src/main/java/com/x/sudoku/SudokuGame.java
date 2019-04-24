@@ -6,16 +6,14 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.x.sudoku.data.PairChain;
 import com.x.sudoku.data.SudokuNode;
-import com.x.sudoku.resolver.BlockImpossibleResolver;
-import com.x.sudoku.resolver.LineImpossibleResolver;
-import com.x.sudoku.resolver.PairChainResolver;
-import com.x.sudoku.resolver.PossibleCheckResolver;
+import com.x.sudoku.resolver.*;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static java.util.Collections.unmodifiableMap;
 import static java.util.stream.Collectors.toSet;
@@ -27,19 +25,20 @@ public class SudokuGame {
     public static void main(String[] args) {
         SudokuGame game = new SudokuGame();
 
-        Integer[][] arr = {
-//                {null, null, null, null, null, null, null, null, null},
-                {null, 7, null, 2, 3, null, 6, null, 4},
-                {null, null, null, null, null, 9, null, null, null},
-                {3, 6, 4, null, null, 7, null, null, null},
+        int[][] arr = {
+//                {0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 1, 0, 6, 0, 5, 2},
+                {7, 0, 0, 0, 0, 0, 0, 6, 0},
+                {0, 4, 0, 0, 0, 0, 0, 0, 0},
 
-                {4, null, null, null, null, null, 3, null, null},
-                {null, null, 7, 3, 2, 1, 8, null, null},
-                {null, null, 3, null, null, null, null, null, 1},
+                {0, 0, 0, 2, 5, 0, 0, 0, 0},
+                {0, 9, 0, 0, 0, 0, 3, 0, 0},
+                {0, 0, 0, 0, 7, 0, 0, 0, 0},
 
-                {null, null, null, 7, null, null, 4, 1, 3},
-                {null, null, null, 5, null, null, null, null, null},
-                {2, null, 8, null, 1, 4, null, 9, null}
+                {0, 0, 1, 0, 0, 9, 8, 0, 0},
+                {5, 0, 0, 0, 0, 0, 0, 0, 0},
+                {2, 0, 0, 0, 0, 0, 0, 0, 0},
+
         };
         game.initNumber(arr);
 
@@ -47,6 +46,7 @@ public class SudokuGame {
         game.registerResolver(new BlockImpossibleResolver(game));
 //        game.registerResolver(new PairChainResolver(game));
         game.registerResolver(new LineImpossibleResolver(game));
+        game.registerResolver(new UnitCheckResolver(game));
 
         game.start();
     }
@@ -84,16 +84,22 @@ public class SudokuGame {
         blocks = unmodifiableMap(allNodes.stream().collect(Collectors.groupingBy(SudokuNode::getBlockKey, toSet())));
     }
 
-    public void initNumber(Integer[][] arr) {
+    public void initNumber(int[][] arr) {
         init();
         allNodes.stream()
-                .filter(node -> arrValue(arr, node) != null)
+                .filter(node -> arrValue(arr, node) != 0)
                 .forEach(node -> {
                     Integer number = arrValue(arr, node);
                     node.setNumber(number);
                     node.setNotInit(false);
+                    node.setNotFilled(false);
                     node.setPossibleNumbers(Collections.singleton(number));
                     inited++;
+
+                    getAffectNodeStream(node)
+                            .forEach(n -> {
+                                n.removeImpossible(number);
+                            });
                 });
     }
 
@@ -101,7 +107,7 @@ public class SudokuGame {
         resolvers.add(resolver);
     }
 
-    private Integer arrValue(Integer[][] arr, SudokuNode node) {
+    private Integer arrValue(int[][] arr, SudokuNode node) {
         return arr[node.getY()][node.getX()];
     }
 
@@ -134,8 +140,7 @@ public class SudokuGame {
                 log.info("PairChain {} destory by {}, fill {} with: {}", before, node, node1, number);
 
                 if (node1.isNotFilled()) {
-                    node1.fillNumber(number);
-                    solved++;
+                    fillNumber(node1, number);
                 }
 
                 pairChains.getOrDefault(node1, Sets.newHashSet()).removeIf(pairChain1 -> pairChain1.equals(pairChain));
@@ -160,8 +165,42 @@ public class SudokuGame {
             if (node.getX() % 9 == 0) {
                 sb.append("\n");
             }
-            sb.append(String.format("%4d", node.getNumber()));
+            sb.append(String.format("%4s", node.getNumber() == 0 ? node.getPossibleNumbers() : node.getNumber()));
         });
         log.info(sb.toString());
+    }
+
+    public SudokuNode getNode(SudokuNode node) {
+        return getNode(node.getX(), node.getY());
+    }
+
+    public void fillNumber(SudokuNode copyNode, int number) {
+        SudokuNode node = getNode(copyNode);
+        if (!node.isNotInit() || !node.isNotFilled()) {
+            throw new IllegalStateException("error fill: " + copyNode + " with: " + number);
+        }
+
+        node.setNumber(number);
+        node.setPossibleNumbers(Collections.singleton(number));
+        node.setNotFilled(false);
+        log.info("({},{})={}", node.getX(), node.getY(), number);
+
+        solved(copyNode);
+
+        getAffectNodeStream(copyNode)
+                .forEach(n -> {
+                    n.removeImpossible(number);
+                    if (n.getPossibleNumbers().size() == 1 && n.isNotFilled()) {
+                        fillNumber(n, n.getPossibleNumbers().stream().findFirst().orElse(0));
+                    }
+                });
+
+    }
+
+    public Stream<SudokuNode> getAffectNodeStream(SudokuNode node) {
+        return Stream.of(getRows().get(node.getY()), getCols().get(node.getX()), getBlocks().get(node.getBlockKey()))
+                .flatMap(Collection::stream)
+                .filter(n -> !n.equals(node))
+                .distinct();
     }
 }
