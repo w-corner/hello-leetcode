@@ -11,7 +11,7 @@ public class RBTree {
         int v;
         Color color;
 
-        Node parrent;
+        Node parent;
         Node left;
         Node right;
 
@@ -21,10 +21,10 @@ public class RBTree {
         }
 
         Node grandPa() {
-            if (parrent == null) {
+            if (parent == null) {
                 return null;
             }
-            return parrent.parrent;
+            return parent.parent;
         }
 
         Node uncle() {
@@ -32,22 +32,22 @@ public class RBTree {
             if (grandPa == null) {
                 return null;
             }
-            if (grandPa.left == parrent) {
+            if (grandPa.left == parent) {
                 return grandPa.right;
             } else
                 return grandPa.left;
         }
 
         Node sibling() {
-            if (parrent.left == this) {
-                return parrent.right;
+            if (parent.left == this) {
+                return parent.right;
             } else {
-                return parrent.left;
+                return parent.left;
             }
         }
 
         boolean isRightSon() {
-            if (parrent.right == this) {
+            if (parent.right == this) {
                 return true;
             }
             return false;
@@ -107,7 +107,15 @@ public class RBTree {
     }
 
     private void deleteNode(Node node) {
-        
+        Node child = node.left == null ? node.right : node.left;
+        if (node.parent == null && node.left == null && node.right == null) {
+            node = null;
+            root = node;
+            return;
+        }
+        if (node.parent == null) {
+            
+        }
     }
 
     public Node getSmallestChild(Node node) {
@@ -128,7 +136,7 @@ public class RBTree {
         } else if (node.v > ele.v) {
             if (node.left == null) {
                 node.left = ele;
-                ele.parrent = node;
+                ele.parent = node;
 
                 balabceTree(ele);
             } else {
@@ -137,7 +145,7 @@ public class RBTree {
         } else {
             if (node.right == null) {
                 node.right = ele;
-                ele.parrent = node;
+                ele.parent = node;
 
                 balabceTree(ele);
             } else {
@@ -147,26 +155,26 @@ public class RBTree {
     }
 
     private void rotateLeft(Node node) {
-        if (node.parrent == null) {
+        if (node.parent == null) {
             root = node;
             return;
         }
         System.out.println("rotateLeft -> " + node);
         Node gp = node.grandPa();
-        Node p = node.parrent;
+        Node p = node.parent;
         Node ls = node.left;
 
         p.right = ls;
         if (ls != null) {
-            ls.parrent = p;
+            ls.parent = p;
         }
         node.left = p;
-        p.parrent = node;
+        p.parent = node;
 
         if (root == p) {
             root = node;
         }
-        node.parrent = gp;
+        node.parent = gp;
 
         if (gp != null) {
             if (gp.left == p) {
@@ -178,26 +186,26 @@ public class RBTree {
     }
 
     private void rotateRight(Node node) {
-        if (node.parrent == null) {
+        if (node.parent == null) {
             root = node;
             return;
         }
         System.out.println("rotateRight -> " + node);
 
         Node gp = node.grandPa();
-        Node p = node.parrent;
+        Node p = node.parent;
         Node rs = node.right;
 
         p.left = rs;
         if (rs != null) {
-            rs.parrent = p;
+            rs.parent = p;
         }
         node.right = p;
-        p.parrent = node;
+        p.parent = node;
         if (root == p) {
             root = node;
         }
-        node.parrent = gp;
+        node.parent = gp;
         if (gp != null) {
             if (gp.left == p) {
                 gp.left = node;
@@ -208,37 +216,37 @@ public class RBTree {
     }
 
     private void balabceTree(Node node) {
-        if (node.parrent == null) {
+        if (node.parent == null) {
             node.color = Color.BLACK;
             return;
         }
-        if (node.parrent.color == Color.RED) {
+        if (node.parent.color == Color.RED) {
             if (node.uncle() != null && node.uncle().color == Color.RED) {
-                node.parrent.color = Color.BLACK;
+                node.parent.color = Color.BLACK;
                 node.uncle().color = Color.BLACK;
                 node.grandPa().color = Color.RED;
                 balabceTree(node.grandPa());
             } else {
-                if (node.isRightSon() && !node.parrent.isRightSon()) {
+                if (node.isRightSon() && !node.parent.isRightSon()) {
                     rotateLeft(node);
                     rotateRight(node);
                     node.color = Color.BLACK;
                     node.left.color = Color.RED;
                     node.right.color = Color.RED;
-                } else if (!node.isRightSon() && node.parrent.isRightSon()) {
+                } else if (!node.isRightSon() && node.parent.isRightSon()) {
                     rotateRight(node);
                     rotateLeft(node);
                     node.color = Color.BLACK;
                     node.left.color = Color.RED;
                     node.right.color = Color.RED;
-                } else if (!node.isRightSon() && !node.parrent.isRightSon()) {
-                    node.parrent.color = Color.BLACK;
+                } else if (!node.isRightSon() && !node.parent.isRightSon()) {
+                    node.parent.color = Color.BLACK;
                     node.grandPa().color = Color.RED;
-                    rotateRight(node.parrent);
-                } else if (node.isRightSon() && node.parrent.isRightSon()) {
-                    node.parrent.color = Color.BLACK;
+                    rotateRight(node.parent);
+                } else if (node.isRightSon() && node.parent.isRightSon()) {
+                    node.parent.color = Color.BLACK;
                     node.grandPa().color = Color.RED;
-                    rotateLeft(node.parrent);
+                    rotateLeft(node.parent);
                 }
             }
         }
