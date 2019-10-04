@@ -4,11 +4,11 @@ import java.util.Arrays;
 
 public class Cycle {
 
-    Node[] eles;
-    int count;
-    Node first;
+    private Node[] eles;
+    private int count;
+    private Node first;
 
-    public Cycle(int count) {
+    private Cycle(int count) {
         this.count = count;
         eles = new Node[count];
         for (int i = 1; i <= count; i++) {
@@ -27,7 +27,7 @@ public class Cycle {
     public static void main(String[] args) {
         Cycle cycle = new Cycle(20);
         int ccc = 0;
-        for (Node node = cycle.first; node != null;) {
+        for (Node node = cycle.first; node != null; ) {
             if (cycle.count == 1) {
                 break;
             }
@@ -41,7 +41,7 @@ public class Cycle {
         System.out.println(cycle);
     }
 
-    private boolean remove(Node node) {
+    private void remove(Node node) {
         int i = (node.index - 1 + eles.length) % eles.length;
 
         int x = findPre(node);
@@ -53,7 +53,6 @@ public class Cycle {
         eles[i].next = null;
 
         count--;
-        return true;
     }
 
     private int findPre(Node node) {
@@ -69,20 +68,19 @@ public class Cycle {
 
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < eles.length; i++) {
-            if (eles[i].next != null) {
-                sb.append(eles[i]).append(", ");
+        for (Node ele : eles) {
+            if (ele.next != null) {
+                sb.append(ele).append(", ");
             }
         }
         return sb.toString();
     }
 
-
-    private class Node {
+    private static class Node {
         int index;
         Node next;
 
-        public Node(int index) {
+        Node(int index) {
             this.index = index;
         }
 
@@ -94,5 +92,4 @@ public class Cycle {
             return index + " -> " + (next == null ? "" : next.index);
         }
     }
-
 }

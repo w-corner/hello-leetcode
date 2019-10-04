@@ -1,6 +1,6 @@
 package com.x.algorithm.huffman;
 
-public class QuickSort {
+class QuickSort {
     /**
      * @description: 交换两个数组元素
      */
@@ -42,7 +42,7 @@ public class QuickSort {
         sort(a, j + 1, high); // 对上一轮排序(切分)时，基准元素右边的子数组进行递归
     }
 
-    public static void sort(Node[] a) { //sort函数重载， 只向外暴露一个数组参数
+    static void sort(Node[] a) { //sort函数重载， 只向外暴露一个数组参数
         sort(a, 0, a.length - 1);
     }
 }

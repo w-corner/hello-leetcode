@@ -2,12 +2,12 @@ package com.x.leetcode;
 
 public class MySqrt {
 
-    public int mySqrt(int x) {
+    private int mySqrt(int x) {
         if (x < 0) throw new IllegalArgumentException("");
         if (x <= 1) return x;
         for (int i = 1; i <= x; i++) {
             int v = i * i;
-            if (v <= x && (v + 2*i +1 > x || 2*i > Integer.MAX_VALUE - 1 -v )) {
+            if (v <= x && (v + 2 * i + 1 > x || 2 * i > Integer.MAX_VALUE - 1 - v)) {
                 return i;
             }
         }
@@ -33,7 +33,7 @@ public class MySqrt {
     }
 
     public int mySqrt3(int x) {
-        return (int)Math.sqrt(x);
+        return (int) Math.sqrt(x);
     }
 
     public static void main(String[] args) {

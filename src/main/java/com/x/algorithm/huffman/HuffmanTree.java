@@ -4,13 +4,13 @@ import java.util.Arrays;
 
 public class HuffmanTree {
 
-    int selectStart = 0;
+    private int selectStart = 0;
 
-    private class HuffmanCode {
+    private static class HuffmanCode {
         char data; // 存放字符，例如 'C'
         String bit; // 存放编码后的字符串, 例如"111"
 
-        public HuffmanCode(char data, String bit) {
+        HuffmanCode(char data, String bit) {
             this.data = data;
             this.bit = bit;
         }
@@ -32,7 +32,7 @@ public class HuffmanTree {
     /**
      * @description: 构建赫夫曼树
      */
-    public Node[] buildTree(Node[] nodes) {
+    private Node[] buildTree(Node[] nodes) {
         int s1, s2, p;
         int n = nodes.length; // 外结点的数量
         int m = 2 * n - 1; // 内结点 + 外结点的总数量
@@ -62,14 +62,14 @@ public class HuffmanTree {
         Node[] HT = buildTree(nodes); // 根据输入的nodes数组构造赫夫曼树
         int n = nodes.length;
         HuffmanCode[] HC = new HuffmanCode[n];
-        String bit;
+        StringBuilder bit;
         for (int i = 0; i < n; i++) { // 遍历各个叶子结点
-            bit = "";
+            bit = new StringBuilder();
             for (int c = i, f = HT[i].getParent(); f != 0; c = f, f = HT[f].getParent()) { // 从叶子结点上溯到根结点
-                if (HT[f].getLeft() == c) bit = "0" + bit; // 反向编码
-                else bit = "1" + bit;
+                if (HT[f].getLeft() == c) bit.insert(0, "0"); // 反向编码
+                else bit.insert(0, "1");
             }
-            HC[i] = new HuffmanCode(HT[i].getData(), bit); // 将字符和对应的编码存储起来
+            HC[i] = new HuffmanCode(HT[i].getData(), bit.toString()); // 将字符和对应的编码存储起来
         }
         return HC;
     }
@@ -77,8 +77,8 @@ public class HuffmanTree {
     /**
      * @description: 进行赫夫曼译码
      */
-    public String decode(Node[] nodes, String code) {
-        String str = "";
+    private String decode(Node[] nodes, String code) {
+        StringBuilder str = new StringBuilder();
         Node[] HT = buildTree(nodes);
         int n = HT.length - 1;
         for (int i = 0; i < code.length(); i++) {
@@ -89,11 +89,11 @@ public class HuffmanTree {
                 n = HT[n].getLeft();
             }
             if (HT[n].getLeft() == 0) {
-                str += HT[n].getData();
+                str.append(HT[n].getData());
                 n = HT.length - 1;
             }
         }
-        return str;
+        return str.toString();
     }
 
     /**

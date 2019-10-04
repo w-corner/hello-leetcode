@@ -67,6 +67,24 @@ public class RBTree {
         tree = new Node[cap];
     }
 
+    public String leftFirstIterator() {
+        StringBuilder sb = new StringBuilder();
+        leftCon(sb, root);
+        if (sb.length() > 0) {
+            sb.deleteCharAt(sb.length() - 1);
+        }
+        return sb.toString();
+    }
+
+    private void leftCon(StringBuilder sb, Node node) {
+        if (node == null) {
+            return;
+        }
+        leftCon(sb, node.left);
+        sb.append(node.v).append(",");
+        leftCon(sb, node.right);
+    }
+
     public boolean add(int ele) {
         if (size < tree.length) {
             Node newNode = new Node(ele, Color.RED);
@@ -80,7 +98,12 @@ public class RBTree {
         return false;
     }
 
-    public boolean delete(Node node, int v) {
+    public boolean delete(int v) {
+        if (root == null) return false;
+        return delete(root, v);
+    }
+
+    private boolean delete(Node node, int v) {
         if (node == null) {
             return false;
         }
@@ -89,7 +112,7 @@ public class RBTree {
                 deleteNode(node);
                 return true;
             }
-            Node smallestChild = getSmallestChild(node);
+            Node smallestChild = getSmallestChild(node.right);
             node.v = smallestChild.v;
             deleteNode(smallestChild);
             return true;
@@ -114,8 +137,29 @@ public class RBTree {
             return;
         }
         if (node.parent == null) {
-            
+            child.parent = null;
+            root = child;
+            child.color = Color.BLACK;
+
+            node = null;
+            return;
         }
+        if (node.isRightSon()) {
+            node.parent.right = child;
+        } else {
+            node.parent.left = child;
+        }
+        if (child != null)
+            child.parent = node.parent;
+
+        if (node.color == Color.BLACK) {
+            if (child != null && child.color == Color.RED) {
+                child.color = Color.BLACK;
+            } else {
+                balanceTreeAfterDelete(child);
+            }
+        }
+        node = null;
     }
 
     public Node getSmallestChild(Node node) {
@@ -138,7 +182,7 @@ public class RBTree {
                 node.left = ele;
                 ele.parent = node;
 
-                balabceTree(ele);
+                balanceTreeAfterInsert(ele);
             } else {
                 putVal(node.left, ele);
             }
@@ -147,7 +191,7 @@ public class RBTree {
                 node.right = ele;
                 ele.parent = node;
 
-                balabceTree(ele);
+                balanceTreeAfterInsert(ele);
             } else {
                 putVal(node.right, ele);
             }
@@ -215,7 +259,51 @@ public class RBTree {
         }
     }
 
-    private void balabceTree(Node node) {
+    private void balanceTreeAfterDelete(Node node) {
+        if (node.parent == null) {
+            node.color = Color.BLACK;
+            return;
+        }
+        if (node.sibling() != null && node.sibling().color == Color.RED) {
+            node.sibling().color = Color.BLACK;
+            node.parent.color = Color.RED;
+            if (node.sibling().isRightSon()) {
+                rotateLeft(node.sibling());
+            } else {
+                rotateRight(node.sibling());
+            }
+        }
+        if (node.parent.color == Color.RED && node.sibling().color == Color.BLACK
+                && node.sibling().left.color == Color.BLACK && node.sibling().right.color == Color.BLACK) {
+            node.sibling().color = Color.RED;
+            balanceTreeAfterDelete(node.parent);
+        } else if (node.parent.color == Color.BLACK && node.sibling().color == Color.BLACK
+                && node.sibling().left.color == Color.BLACK && node.sibling().right.color == Color.BLACK) {
+            node.sibling().color = Color.RED;
+            node.parent.color = Color.BLACK;
+        } else {
+            if (node.sibling().color == Color.BLACK) {
+                if (!node.isRightSon() && node.sibling().right.color == Color.BLACK && node.sibling().left.color == Color.RED) {
+                    node.sibling().color = Color.RED;
+                    node.sibling().left.color = Color.BLACK;
+                } else if (node.isRightSon() && node.sibling().right.color == Color.RED && node.sibling().left.color == Color.BLACK) {
+                    node.sibling().color = Color.RED;
+                    node.sibling().right.color = Color.BLACK;
+                }
+            }
+            node.sibling().color = node.parent.color;
+            node.parent.color = Color.BLACK;
+            if (!node.isRightSon()) {
+                node.sibling().right.color = Color.BLACK;
+                rotateLeft(node.sibling());
+            } else {
+                node.sibling().left.color = Color.BLACK;
+                rotateRight(node.sibling());
+            }
+        }
+    }
+
+    private void balanceTreeAfterInsert(Node node) {
         if (node.parent == null) {
             node.color = Color.BLACK;
             return;
@@ -225,7 +313,7 @@ public class RBTree {
                 node.parent.color = Color.BLACK;
                 node.uncle().color = Color.BLACK;
                 node.grandPa().color = Color.RED;
-                balabceTree(node.grandPa());
+                balanceTreeAfterInsert(node.grandPa());
             } else {
                 if (node.isRightSon() && !node.parent.isRightSon()) {
                     rotateLeft(node);

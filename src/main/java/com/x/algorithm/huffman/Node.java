@@ -13,7 +13,7 @@ class Node {
         this.weight = weight;
     }
 
-    public Node(int weight) {
+    Node(int weight) {
         this.weight = weight;
     }
 }

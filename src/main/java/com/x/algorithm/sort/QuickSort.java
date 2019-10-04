@@ -2,7 +2,7 @@ package com.x.algorithm.sort;
 
 public class QuickSort {
 
-    int partition(int arr[], int low, int high) {
+    private int partition(int[] arr, int low, int high) {
         int pivot = arr[high];
         int i = (low - 1); // index of smaller element
         for (int j = low; j < high; j++) {
@@ -31,7 +31,7 @@ public class QuickSort {
       arr[] --> Array to be sorted,
       low  --> Starting index,
       high  --> Ending index */
-    void sort(int arr[], int low, int high) {
+    private void sort(int[] arr, int low, int high) {
         if (low < high) {
             /* pi is partitioning index, arr[pi] is
               now at right place */
@@ -45,16 +45,16 @@ public class QuickSort {
     }
 
     /* A utility function to print array of size n */
-    static void printArray(int arr[]) {
-        int n = arr.length;
-        for (int i = 0; i < n; ++i)
-            System.out.print(arr[i] + " ");
+    private static void printArray(int[] arr) {
+        for (int value : arr) {
+            System.out.print(value + " ");
+        }
         System.out.println();
     }
 
     // Driver program
-    public static void main(String args[]) {
-        int arr[] = {5, 8, 7, 9, 1, 10};
+    public static void main(String[] args) {
+        int[] arr = {5, 8, 7, 9, 1, 10};
         int n = arr.length;
 
         QuickSort ob = new QuickSort();
@@ -62,24 +62,5 @@ public class QuickSort {
 
         System.out.println("sorted array");
         printArray(arr);
-    }
-
-    private void qs(int[] arr, int low, int high) {
-        if (low >= high) return;
-        int p = partition(arr, low, high);
-        qs(arr, low, p - 1);
-        qs(arr, p + 1, high);
-    }
-
-    private int p(int[] arr, int low, int high) {
-        int privot = arr[high];
-        int i = low - 1;
-        for (int j = low; j < high; j++) {
-            if (arr[j] < privot) {
-                i++;
-
-            }
-        }
-        return i + 1;
     }
 }
